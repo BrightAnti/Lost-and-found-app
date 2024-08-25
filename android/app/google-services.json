@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "721669628431",
+    "project_id": "finderucc-a082c",
+    "storage_bucket": "finderucc-a082c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:721669628431:android:04c996a3493c716e84397a",
+        "android_client_info": {
+          "package_name": "com.example.finderucc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDc9bzCBCnhKfudfV7eUTjxLeraeUjI60E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
