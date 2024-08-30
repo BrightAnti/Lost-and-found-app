@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -217,5 +219,5 @@ class _UserProfileScreenState extends State<UserProfileScreen> with SingleTicker
     } catch (e) {
       print('Error updating item status: $e');
     }
-  }
+  } 
 }
