@@ -1,10 +1,11 @@
-// ignore_for_file: library_private_types_in_public_api
+// lib/screens/add_item_page.dart
 
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import '../models/pickup_point.dart';
 
 class AddItemPage extends StatefulWidget {
   final String userId;
@@ -23,9 +24,15 @@ class _AddItemPageState extends State<AddItemPage> {
   final _phoneNumberController = TextEditingController();
   String _selectedCategory = 'Electronics';
   String _selectedStatus = 'Lost';
+  String? _selectedPickupPoint;
   final DateTime _selectedDate = DateTime.now();
   File? _image;
   String? _imageUrl;
+  List<PickupPoint> _pickupPoints = [
+    PickupPoint(id: 'calc', name: 'Calc', location: ''),
+    PickupPoint(id: 'sam_jonah', name: 'Sam Jonah', location: ''),
+    PickupPoint(id: 'oguaa_hall', name: 'Oguaa Hall', location: ''),
+  ];
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -66,6 +73,7 @@ class _AddItemPageState extends State<AddItemPage> {
         'date': _selectedDate.toIso8601String(),
         'imageUrl': _imageUrl,
         'userId': widget.userId, // Save userId with the item
+        'pickupPoint': _selectedPickupPoint, // Save selected pickup point
       }).then((_) {
         // ignore: use_build_context_synchronously
         Navigator.pop(context);
@@ -165,6 +173,22 @@ class _AddItemPageState extends State<AddItemPage> {
                     return 'Please enter a phone number';
                   }
                   return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _selectedPickupPoint,
+                decoration: const InputDecoration(labelText: 'Pickup Point'),
+                items: _pickupPoints.map((pickupPoint) {
+                  return DropdownMenuItem<String>(
+                    value: pickupPoint.id,
+                    child: Text(pickupPoint.name),
+                  );
+                }).toList(),
+                onChanged: (newValue) {
+                  setState(() {
+                    _selectedPickupPoint = newValue;
+                  });
                 },
               ),
               const SizedBox(height: 20),

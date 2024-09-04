@@ -1,59 +1,87 @@
+import 'package:finderucc/screens/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:finderucc/screens/home_page.dart';
-import 'package:finderucc/screens/admin/AdminManagementScreen.dart';
-import 'package:finderucc/screens/RegisterPage.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../main.dart';
+import 'home_page.dart';
+// Import AdminHomePage if you have one
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _RegisterPageState createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  bool _isPasswordVisible = false;
+  bool _isAdmin = false; // Admin status, based on email
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  bool _isPasswordVisible = false;
 
-  Future<void> _login() async {
+  Future<void> _register() async {
     try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      if (!emailController.text.endsWith('.ucc.edu.gh')) {
+        showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('Only UCC accounts allowed'),
+            content: const Text("Please login with your institutional mail."),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text('Okay'),
+              )
+            ],
+          ),
+        );
+        return;
+      }
+
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
 
-      final uid = userCredential.user?.uid ?? '';
-      final email = userCredential.user?.email ?? '';
-
-      if (email.endsWith('@admin.com')) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => AdminManagementScreen(userId: uid),
-          ),
-        );
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomePage(userId: uid),
-          ),
-        );
+      // Check if the email ends with '@admin.com'
+      if (emailController.text.trim().endsWith('@admin.com')) {
+        _isAdmin = true;
       }
+
+      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+        'name': nameController.text.trim(),
+        'phoneNumber': phoneController.text.trim(),
+        'email': emailController.text.trim(),
+        'isAdmin': _isAdmin, // Save admin status
+      });
+
+      await userCredential.user?.updateDisplayName(nameController.text.trim());
+
+      final uid = userCredential.user?.uid ?? '';
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => _isAdmin 
+              ? AdminManagementScreen(userId: uid,) // Navigate to Admin page if admin
+              : HomePage(userId: uid,), // Else, navigate to HomePage
+        ),
+      );
     } catch (e) {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Login Failed'),
-          content: const Text("An error occurred while logging in. Please try again."),
+          title: const Text('Registration Failed'),
+          content: const Text("An error occurred while creating the account. Please try again."),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
               child: const Text('Okay'),
-            ),
+            )
           ],
         ),
       );
@@ -76,6 +104,23 @@ class _LoginPageState extends State<LoginPage> {
                     fontSize: 40,
                     fontFamily: 'Billabong',
                   ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Name',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: phoneController,
+                  decoration: const InputDecoration(
+                    labelText: 'Phone Number',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.phone,
                 ),
                 const SizedBox(height: 20),
                 TextField(
@@ -107,7 +152,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: _login,
+                  onPressed: _register,
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 100),
                     backgroundColor: const Color(0xFF003366),
@@ -117,18 +162,18 @@ class _LoginPageState extends State<LoginPage> {
                       color: Colors.white,
                     ),
                   ),
-                  child: const Text('Log In'),
+                  child: const Text('Sign Up'),
                 ),
                 const SizedBox(height: 20),
                 TextButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const RegisterPage()),
+                      MaterialPageRoute(builder: (context) => const LoginPage()),
                     );
                   },
                   child: const Text(
-                    'Don\'t have an account? Sign up',
+                    'Already have an account? Log in',
                     style: TextStyle(
                       color: Color(0xFF003366),
                       fontWeight: FontWeight.bold,
@@ -142,4 +187,6 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
+  
+  AdminManagementScreen({required String userId}) {}
 }

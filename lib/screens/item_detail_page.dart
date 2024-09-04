@@ -1,9 +1,15 @@
+// lib/screens/item_detail_page.dart
 import 'package:flutter/material.dart';
 
 class ItemDetailPage extends StatelessWidget {
   final Map<String, dynamic> itemData;
+  final String pickupPointName;
 
-  const ItemDetailPage({super.key, required this.itemData});
+  const ItemDetailPage({
+    super.key,
+    required this.itemData,
+    required this.pickupPointName,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +67,18 @@ class ItemDetailPage extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         itemData['location'] ?? 'No location',
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Pickup Point:',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        pickupPointName.isNotEmpty ? pickupPointName : 'No pickup point',
                         style: const TextStyle(fontSize: 16),
                       ),
                     ],

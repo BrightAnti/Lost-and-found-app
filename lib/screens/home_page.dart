@@ -170,7 +170,7 @@ class _HomePageState extends State<HomePage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ItemDetailPage(itemData: itemData),
+                              builder: (context) => ItemDetailPage(itemData: itemData, pickupPointName: '',),
                             ),
                           );
                         },
